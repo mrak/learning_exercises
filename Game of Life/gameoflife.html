@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Conway's Game of Life</title>
+        <link rel="stylesheet" href="styles.css">
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+          }
+
+          .alive {
+            background-color: black;
+          }
+
+          table {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+          }
+        </style>
+    </head>
+    <body>
+        <table></table>
+        <script>
+        /*
+Any live cell with fewer than two live neighbours dies, as if caused by under-population.
+Any live cell with two or three live neighbours lives on to the next generation.
+Any live cell with more than three live neighbours dies, as if by overcrowding.
+Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+*/
+
+function promptForWidth() {
+    return prompt("What's the width?");
+}
+
+function promptForHeight() {
+    return prompt("What's the height?");
+}
+
+function promptForDelay() {
+    return prompt("How often to update?");
+}
+
+// randomly pick true or false
+function trueOrFalse() {
+    if (Math.random() > .5) {
+        var trueOrFalse = true;
+    } else {
+        var trueOrFalse = false;
+    }
+    return trueOrFalse;
+    // return true or false
+}
+
+// Write the result to the page
+function paint(grid) {
+    var oldTable = document.querySelector('table');
+    document.body.removeChild(oldTable);
+
+    var newTable = document.createElement('table');
+
+    for (var w = 0; w < grid.length; w++) {
+        var row = grid[w];
+        var tr = document.createElement('tr');
+        newTable.appendChild(tr);
+
+        for (var h = 0; h < row.length; h++) {
+            var cell = row[h];
+            var td = document.createElement('td');
+            tr.appendChild(td);
+
+            if (cell === true) {
+                td.className = 'alive';
+            }
+        };
+    };
+
+    document.body.appendChild(newTable);
+}
+
+// create our 2, 2-dimensional arrays. The first of which will have random alive/dead cells
+function initialize() {
+    var width = promptForWidth();
+    var height = promptForHeight();
+    var grid1 = [];
+    var grid2 = [];
+
+    for (var w = 0; w < width; w++) {
+        grid1.push([]);
+        grid2.push([]);
+
+        for (var h = 0; h < height; h++) {
+            grid1[w].push(trueOrFalse());
+            grid2[w].push(false);
+        }
+    }
+
+    return [grid1, grid2];
+}
+
+// take our two arrays, and update the second one based on what's alive in the first
+function update(grids) {
+    var grid1 = grids[0];
+    var grid2 = grids[1];
+    var w = grid1.length;
+    var h = grid1[0].length;
+
+    for (var i = 0; i < w; i++) {
+        for (var j = 0; j < h; j++) {
+            var neighbors = 0;
+
+            if (grid1[(w + i - 1) % w][(h + j - 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i + 1) % w][(h + j + 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i - 1) % w][(h + j + 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i + 1) % w][(h + j - 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i - 0) % w][(h + j - 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i - 0) % w][(h + j + 1) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i - 1) % w][(h + j - 0) % h] === true) {
+                neighbors++;
+            }
+            if (grid1[(w + i + 1) % w][(h + j - 0) % h] === true) {
+                neighbors++;
+            }
+
+            if (grid1[i][j]) {
+
+
+                if (neighbors === 2 || neighbors === 3) {
+                    grid2[i][j] = true;
+                } else {
+                    grid2[i][j] = false;
+                }
+
+            } else {
+                if (neighbors === 3) {
+                    grid2[i][j] = true;
+                } else {
+                    grid2[i][j] = false;
+                }
+            }
+        }
+    }
+
+    return [grid2, grid1];
+}
+
+var grids = initialize();
+var delay = promptForDelay();
+
+function mainLoop() {
+    paint(grids[0]);
+    grids = update(grids);
+}
+
+setInterval(mainLoop, delay);
+        </script>
+    </body>
+</html>
